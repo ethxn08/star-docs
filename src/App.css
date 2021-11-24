@@ -178,7 +178,7 @@ span {
   box-shadow: 0 0 10px #a945c7, 0 0 40px #a945c7, 0 0 80px #a945c7;
 }
 .title-separator {
-  width: 25px;
+  min-width: 25px !important;
 }
 @media (max-width: 700px) {
   .categories {
