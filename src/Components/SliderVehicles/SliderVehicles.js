@@ -4,27 +4,32 @@ import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import { Link } from "react-router-dom";
 import Modal from "./Modal";
-function SliderFilms() {
+
+function SliderVehicles() {
   const [data, setData] = useState([]);
   const [modalShow, setModalShow] = useState(false);
-  const [films, setFilms] = useState([]);
+  const [nextPage, setNextPage] = useState("");
+  const [prevPage, setPrevPage] = useState("");
+  const [vehicles, setVehicles] = useState([]);
   const [loading, setLoading] = useState(true);
   useEffect(() => {
-    axios.get("https://swapi.dev/api/films").then((response) => {
+    axios.get("https://swapi.dev/api/vehicles").then((response) => {
       const res = response.data;
-      setFilms(res);
+      setNextPage(res.next);
+      setPrevPage(res.previous);
+      setVehicles(res);
     });
   }, []);
 
   useEffect(() => {
-    if (films.length == 0) {
+    if (vehicles.length == 0) {
       setLoading(true);
-      console.log(films);
+      console.log(vehicles);
     } else {
       setLoading(false);
-      console.log(films);
+      console.log(vehicles);
     }
-  }, [films]);
+  }, [vehicles]);
 
   const settings = {
     dots: true,
@@ -38,14 +43,35 @@ function SliderFilms() {
   const handlerModal = (e) => {
     setModalShow(true);
     axios
-      .get(`https://swapi.dev/api/films/?search=${e.target.name}`)
+      .get(`https://swapi.dev/api/vehicles/?search=${e.target.name}`)
       .then((response) => {
         const res = response.data;
         setData(res.results[0]);
         console.log(res.results[0]);
       });
   };
-
+  const handlerNextPage = () => {
+    console.log("Next");
+    if (nextPage != null) {
+      axios.get(nextPage).then((response) => {
+        const res = response.data;
+        setNextPage(res.next);
+        setPrevPage(res.previous);
+        setVehicles(res);
+      });
+    }
+  };
+  const handlerPrevPage = () => {
+    console.log("Prev");
+    if (prevPage != null) {
+      axios.get(prevPage).then((response) => {
+        const res = response.data;
+        setNextPage(res.next);
+        setPrevPage(res.previous);
+        setVehicles(res);
+      });
+    }
+  };
   return (
     <div className="container-slider">
       {loading == true ? (
@@ -56,7 +82,7 @@ function SliderFilms() {
             <Modal closeModal={setModalShow} data={data} />
           ) : (
             <Slider {...settings}>
-              {films.results.map((film) => {
+              {vehicles.results.map((vehicle) => {
                 return (
                   <div className="films">
                     <div className="films-header">
@@ -65,27 +91,25 @@ function SliderFilms() {
                           🔙
                         </Link>
                       </h3>
-                      <h1 className="title">Films</h1>
+                      <h1 className="title">Vehicles</h1>
                     </div>
                     <div className="films-content">
-                      <span>{film.title}</span>
+                      <span>{vehicle.name}</span>
 
-                      <span>{film.director}</span>
+                      <span>{vehicle.model}</span>
 
-                      <span>{film.producer}</span>
-
-                      <span>{film.release_date}</span>
+                      <span>{vehicle.manufacturer}</span>
                       <button
                         className="more-info"
-                        name={film.title}
+                        name={vehicle.name}
                         onClick={handlerModal}
                       >
                         More Info
                       </button>
                     </div>
                     <div className="films-footer">
-                      <p>👈 Prev Page</p>
-                      <p>Next Page 👉</p>
+                      <p onClick={handlerPrevPage}>👈 Prev Page</p>
+                      <p onClick={handlerNextPage}>Next Page 👉</p>
                     </div>
                   </div>
                 );
@@ -98,4 +122,4 @@ function SliderFilms() {
   );
 }
 
-export default SliderFilms;
+export default SliderVehicles;
